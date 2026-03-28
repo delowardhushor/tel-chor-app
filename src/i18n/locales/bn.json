@@ -1,0 +1,22 @@
+{
+  "common": {
+    "welcome": "স্বাগতম",
+    "home": "হোম",
+    "settings": "সেটিংস",
+    "language": "ভাষা",
+    "english": "ইংরেজি",
+    "bengali": "বাংলা"
+  },
+  "auth": {
+    "login": "লগইন",
+    "logout": "লগআউট",
+    "username": "ব্যবহারকারীর নাম",
+    "password": "পাসওয়ার্ড"
+  },
+  "screens": {
+    "home": {
+      "title": "হোম স্ক্রিন",
+      "description": "এটি অ্যাপের হোম স্ক্রিন"
+    }
+  }
+}

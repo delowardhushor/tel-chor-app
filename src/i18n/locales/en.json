@@ -1,0 +1,22 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "settings": "Settings",
+    "language": "Language",
+    "english": "English",
+    "bengali": "Bengali"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password"
+  },
+  "screens": {
+    "home": {
+      "title": "Home Screen",
+      "description": "This is the home screen of the app"
+    }
+  }
+}
