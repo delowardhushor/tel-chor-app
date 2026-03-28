@@ -2,18 +2,20 @@ import { StyleSheet, View, Text, FlatList, TouchableOpacity ,Image } from "react
 import InnerLayer from "../components/InnerLayer";
 import { useDispatch, useSelector } from "react-redux";
 import FullButton from "../components/FullBtn";
-import React from "react";
+import React, { useEffect } from "react";
 import Spacing from "../components/Spacing";
 import { setSelectedLabel, setSelectedMetro } from "../store/appSlice";
 import Input from "../components/Input";
 import {captureImage} from './../utils/uti'
 import axios from "axios";
 import { Toast } from "toastify-react-native";
+import moment from "moment";
 
 export default function Addfuel({ navigation }) {
     const dispatch = useDispatch()
     const pump = useSelector(state => state.app.pump);
     const [vehicles, setVehicles] = React.useState([]);
+    const [history, sethistory] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
 
     const selectedMetro = useSelector(state => state.app.selectedMetro);
@@ -182,6 +184,22 @@ export default function Addfuel({ navigation }) {
         }
     }
 
+    const checkFuel = async () => {
+
+        // todo:: fetch fuel supply history based on selected metro, label and number
+        try {            const res = await axios.get(`https://telchorapi.bitbytetec.com/vehicles/pump/${pump._id}`);
+            if (res?.data?.success) {
+                sethistory(res.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching vehicles:", error);
+        }
+    }
+
+    useEffect(() => {
+        checkFuel();
+    }, [selectedLabel, selectedMetro, number])
+
     return (
         <InnerLayer>
             <View style={styles.header}>
@@ -240,8 +258,23 @@ export default function Addfuel({ navigation }) {
                 />
                 <Spacing vertical={20} />
                 <Input label={"যানবাহনের নাম্বার প্লেটের ডিজিট"} keyboardType="numeric" onChangeText={setNumber} />
+                {history.length > 0 &&
+                    <>
+                        <Spacing vertical={20} />
+                        <View style={{
+                            padding: 10,
+                            backgroundColor: "lightyellow",
+                            borderRadius: 5,
+                            borderColor: "#eee",
+                            borderWidth: 1,
+                        }} >
+                        <Text style={{ fontSize: 12, fontWeight: "bold" }} >{history[0].number} নাম্বার প্লেটের যানবাহনটি {moment(history[0].createdAt).fromNow()} {history[0].filledFrom?.name}, {history[0].filledFrom?.location} থেকে {history[0].quantity} লিটার জ্বালানি ক্রয় করেছে </Text>
+                        </View>
+                        </>
+                        }
                 <Spacing vertical={20} />
                 <Input label={"তেলের পরিমাণ (লিটারে) লিখুন"} keyboardType="numeric" onChangeText={setquantity} />
+                
                 <Spacing vertical={20} />
                 {selectedImage?.uri ? 
                 <View style={{alignItems:"center"}} >
