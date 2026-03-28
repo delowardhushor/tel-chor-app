@@ -1,6 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function Spacing({horizontal = 15, vertical = 15}) {
+export default function Spacing({horizontal = 0, vertical = 0}) {
 
     return(
         <View style={{width: horizontal, height: vertical}} />

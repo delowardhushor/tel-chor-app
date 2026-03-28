@@ -1,9 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-export default function FullButton({title}) {
+export default function FullButton({title, onPress}) {
 
     return(
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity style={styles.btn} onPress={onPress}>
             <Text style={styles.title} >{title}</Text>
         </TouchableOpacity>
     )
@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
         justifyContent:"center",
         borderRadius:5,
         height: 50,
+        paddingHorizontal: 15
     },
     title:{
         color:"#fff",

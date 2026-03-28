@@ -4,7 +4,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import LanguageSelector from './src/components/LanguageSelector';
@@ -13,8 +13,36 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Home from './src/screens/Home';
 import Onboarding from './src/screens/Onboarding';
+import PumpSignUp from './src/screens/PumpSignUp';
+import AddFuel from './src/screens/Addfuel';
+import ToastManager, { Toast } from 'toastify-react-native'
 
 const Stack = createNativeStackNavigator();
+
+const Navigation = () => {
+  const userType = useSelector(state => state.app.userType);
+  return (
+    <NavigationContainer>
+      <Stack.Navigator 
+        screenOptions={{
+          headerShown: false
+        }}
+      >
+        {!userType ?
+          <>
+            <Stack.Screen name="Onboarding" component={Onboarding} />
+            <Stack.Screen name="PumpSignUp" component={PumpSignUp} />
+          </>
+          :
+          <>
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="AddFuel" component={AddFuel} />
+          </>
+        }
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -35,17 +63,8 @@ function App() {
       >
         <SafeAreaProvider>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Onboarding"
-            screenOptions={{
-              headerShown: false
-            }}
-            >
-              <Stack.Screen name="Onboarding" component={Onboarding} />
-              <Stack.Screen name="Home" component={Home} />
-              {/* <Stack.Screen name="Details" component={Home} /> */}
-            </Stack.Navigator>
-          </NavigationContainer>
+          <Navigation />
+          <ToastManager />
         </SafeAreaProvider>
       </PersistGate>
     </Provider>
