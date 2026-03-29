@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import Spacing from "../components/Spacing";
 import { setSelectedLabel, setSelectedMetro } from "../store/appSlice";
 import Input from "../components/Input";
-import { captureImage, toBanglaNumber } from './../utils/uti'
+import { captureImage, IMAGE_BASE_URL, toBanglaNumber } from './../utils/uti'
 import axios from "axios";
 import { Toast } from "toastify-react-native";
 import moment from "moment";
@@ -149,6 +149,14 @@ export default function Addfuel({ navigation }) {
         setNumber(digits);
     };
 
+    const getFormattedNumberPlate = () => {
+        let formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + number;
+
+        formatattedNUmberPlate = toBanglaNumber(formatattedNUmberPlate.replace(/\s+/g, '-'));
+        return formatattedNUmberPlate;
+
+    }
+
     const submit = async () => {
         if (!selectedMetro || !selectedLabel) {
             // Show error message
@@ -166,6 +174,11 @@ export default function Addfuel({ navigation }) {
             return;
         }
 
+        if (number.length < 6) {
+            Toast.error("দয়া করে নাম্বার প্লেটের ৬ ডিজিট লিখুন");
+            return;
+        }
+
         setLoading(true);
 
         const formData = new FormData()
@@ -176,12 +189,8 @@ export default function Addfuel({ navigation }) {
             name: selectedImage.fileName
         })
 
-        let formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + number;
-
-        formatattedNUmberPlate = toBanglaNumber(formatattedNUmberPlate.replace(/\s+/g, '-'));
-
         formData.append("quantity", quantity);
-        formData.append("number", formatattedNUmberPlate);
+        formData.append("number", getFormattedNumberPlate());
         formData.append("filledFrom", pump._id);
 
         try {
@@ -205,8 +214,9 @@ export default function Addfuel({ navigation }) {
 
         // todo:: fetch fuel supply history based on selected metro, label and number
         try {
-            const res = await axios.get(`https://telchorapi.bitbytetec.com/vehicles/pump/${pump._id}`);
-            if (res?.data?.success) {
+            const res = await axios.get(`https://telchorapi.bitbytetec.com/vehicles/bynumber?number=${getFormattedNumberPlate()}`);
+            console.log("Fuel supply history response:", res.data);
+            if (res?.data?.success && res.data.data.length > 0) {
                 sethistory(res.data.data);
             }
         } catch (error) {
@@ -215,15 +225,16 @@ export default function Addfuel({ navigation }) {
     }
 
     useEffect(() => {
-        checkFuel();
+        if (selectedLabel && selectedMetro && number?.length >= 7) {
+            checkFuel();
+
+        } else {
+            sethistory([]);
+        }
     }, [selectedLabel, selectedMetro, number])
 
     return (
         <InnerLayer>
-            <View style={styles.header}>
-                <Text style={styles.pumpName} >জ্বালানি সরবরাহ শুরু করুন</Text>
-            </View>
-            <Spacing vertical={20} />
             <View style={{ flex: 1 }} >
                 <Text style={styles.label} >নাম্বার প্লেটের শহর নির্বাচন করুন</Text>
                 <Spacing vertical={10} />
@@ -291,8 +302,20 @@ export default function Addfuel({ navigation }) {
                             borderRadius: 5,
                             borderColor: "#eee",
                             borderWidth: 1,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 10
                         }} >
-                            <Text style={{ fontSize: 12, fontWeight: "bold" }} >{history[0].number} নাম্বার প্লেটের যানবাহনটি {moment(history[0].createdAt).fromNow()} {history[0].filledFrom?.name}, {history[0].filledFrom?.location} থেকে {history[0].quantity} লিটার জ্বালানি ক্রয় করেছে </Text>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate("ImagePreviewScreen", { image: IMAGE_BASE_URL + history[0].image })}
+                            >
+<Image 
+                                source={{ uri: IMAGE_BASE_URL + history[0].image }}
+                                style={{ width: 80, height: 80, borderRadius: 5, marginBottom: 10 }}
+                            />
+                            </TouchableOpacity>
+                            
+                            <Text style={{flex:1, fontSize: 12, fontWeight: "bold" }} >{history[0].number} নাম্বার প্লেটের যানবাহনটি {moment(history[0].createdAt).fromNow()} {history[0].filledFrom?.name}, {history[0].filledFrom?.location} থেকে {history[0].quantity} লিটার জ্বালানি ক্রয় করেছে </Text>
                         </View>
                     </>
                 }

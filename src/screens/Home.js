@@ -41,8 +41,6 @@ export default function Home({ navigation }) {
         navigation.navigate("AddFuel");
     }
 
-    console.log("Vehicles:", vehicles);
-
     return (
         <InnerLayer>
             <View style={styles.header}>
@@ -57,7 +55,9 @@ export default function Home({ navigation }) {
                     backgroundColor: "#222",
                     alignItems: "center",
                     justifyContent: "center"
-                }} >
+                }} 
+                onPress={() => navigation.navigate("Settings") }
+                >
                     <Ionicons name="settings-outline" size={24} color="#fff" />
                 </TouchableOpacity>
                 
@@ -65,8 +65,9 @@ export default function Home({ navigation }) {
             <FlatList
                 data={vehicles}
                 ListHeaderComponent={
-                    <Text style={{ fontSize: 16, fontWeight: "bold", marginVertical: 10 }} >আপনার দ্বারা জ্বালানি সরবরাহকৃত যানবাহনের তালিকা</Text>
+                    <Text style={{ fontSize: 14, fontWeight: "bold", marginVertical: 10 }} >আপনার দ্বারা জ্বালানি সরবরাহকৃত সর্বশেষ ২০টি যানবাহনের তালিকা</Text>
                 }
+                showsVerticalScrollIndicator={false}
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
                     <View style={{
@@ -106,6 +107,9 @@ export default function Home({ navigation }) {
                         <Spacing vertical={20} />
                         <FullButton title="জ্বালানি সরবরাহ শুরু করুন" onPress={onPressStart} />
                     </View>
+                }
+                ListFooterComponent={
+                    <View style={{height: 100}} />
                 }
             />
 

@@ -15,6 +15,8 @@ import Home from './src/screens/Home';
 import Onboarding from './src/screens/Onboarding';
 import PumpSignUp from './src/screens/PumpSignUp';
 import AddFuel from './src/screens/Addfuel';
+import Settings from './src/screens/Settings';
+import ImagePreviewScreen from './src/screens/ImagePreviewScreen';
 import ToastManager, { Toast } from 'toastify-react-native'
 
 const Stack = createNativeStackNavigator();
@@ -36,7 +38,18 @@ const Navigation = () => {
           :
           <>
             <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="AddFuel" component={AddFuel} />
+            <Stack.Screen name="AddFuel" component={AddFuel}
+              
+              options={{
+              title:"জ্বালানি সরবরাহ শুরু করুন",
+              headerShown: true
+            }}
+            />
+            <Stack.Screen name="Settings" component={Settings} options={{
+              title:"সেটিংস",
+              headerShown: true
+            }} />
+            <Stack.Screen name="ImagePreviewScreen" component={ImagePreviewScreen} />
           </>
         }
       </Stack.Navigator>
@@ -64,7 +77,10 @@ function App() {
         <SafeAreaProvider>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
           <Navigation />
-          <ToastManager />
+          <ToastManager 
+            position="bottom"
+            showCloseIcon={false}
+          />
         </SafeAreaProvider>
       </PersistGate>
     </Provider>
