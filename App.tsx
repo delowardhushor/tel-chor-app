@@ -19,6 +19,7 @@ import Settings from './src/screens/Settings';
 import ImagePreviewScreen from './src/screens/ImagePreviewScreen';
 import VehicleSignUp from './src/screens/VehicleSignUp';
 import QRScreen from './src/screens/QRScreen';
+import QRScannerScreen from "./src/screens/QRScannerScreen"
 import ToastManager, { Toast } from 'toastify-react-native'
 
 const Stack = createNativeStackNavigator();
@@ -60,11 +61,15 @@ const Navigation = () => {
               headerShown: true
             }}
             />
+            <Stack.Screen name="QRScannerScreen" component={QRScannerScreen} options={{
+              title:"QR কোড স্ক্যান করুন",
+              headerShown: true
+            }} />
             </>
             :
             <>
             <Stack.Screen name="QRScreen" component={QRScreen} />
-
+            
             </>
             }
             

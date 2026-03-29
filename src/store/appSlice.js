@@ -7,6 +7,8 @@ const initialState = {
   userType: null,
   selectedMetro: null,
   selectedLabel: null,
+  selectedNumber: null,
+  selectedTab: "menual" // qr, menual
 }
 
 export const appSlice = createSlice({
@@ -28,8 +30,14 @@ export const appSlice = createSlice({
     setSelectedLabel: (state, action) => {
       state.selectedLabel = action.payload;
     },
+    setSelectedNumber: (state, action) => {
+      state.selectedNumber = action.payload;
+    },
     setVehicle: (state, action) => {
       state.vehicle = action.payload;
+    },
+    setSelectedTab: (state, action) => {
+      state.selectedTab = action.payload;
     }
 
   },
@@ -42,7 +50,9 @@ export const {
   setUserType,
   setSelectedMetro,
   setSelectedLabel,
-  setVehicle
+  setVehicle,
+  setSelectedTab,
+  setSelectedNumber
 } = appSlice.actions
 
 export default appSlice.reducer

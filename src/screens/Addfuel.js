@@ -1,10 +1,10 @@
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image, ScrollView } from "react-native";
 import InnerLayer from "../components/InnerLayer";
 import { useDispatch, useSelector } from "react-redux";
 import FullButton from "../components/FullBtn";
 import React, { useEffect } from "react";
 import Spacing from "../components/Spacing";
-import { setSelectedLabel, setSelectedMetro } from "../store/appSlice";
+import { setSelectedLabel, setSelectedMetro, setSelectedNumber, setSelectedTab } from "../store/appSlice";
 import Input from "../components/Input";
 import { captureImage, IMAGE_BASE_URL, metros, toBanglaNumber, vehicleCategoryLetters } from './../utils/uti'
 import axios from "axios";
@@ -20,13 +20,11 @@ export default function Addfuel({ navigation }) {
 
     const selectedMetro = useSelector(state => state.app.selectedMetro);
     const selectedLabel = useSelector(state => state.app.selectedLabel);
+    const selectedTab = useSelector(state => state.app.selectedTab);
+    const selectedNumber = useSelector(state => state.app.selectedNumber);
 
     const [selectedImage, setSelectedImage] = React.useState(null);
-    const [quantity, setquantity] = React.useState("");
-    const [number, setNumber] = React.useState("");
-
-
-    
+    const [quantity, setquantity] = React.useState("");    
 
     const addImage = async () => {
         const capturedImage = await captureImage();
@@ -48,11 +46,11 @@ export default function Addfuel({ navigation }) {
             digits = digits.slice(0, 2) + '-' + digits.slice(2);
         }
 
-        setNumber(digits);
+        dispatch(setSelectedNumber(digits));
     };
 
     const getFormattedNumberPlate = () => {
-        let formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + number;
+        let formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + selectedNumber;
 
         formatattedNUmberPlate = toBanglaNumber(formatattedNUmberPlate.replace(/\s+/g, '-'));
         return formatattedNUmberPlate;
@@ -76,7 +74,7 @@ export default function Addfuel({ navigation }) {
             return;
         }
 
-        if (number.length < 7) {
+        if (selectedNumber.length < 7) {
             Toast.error("দয়া করে নাম্বার প্লেটের ৬ ডিজিট লিখুন");
             return;
         }
@@ -102,6 +100,9 @@ export default function Addfuel({ navigation }) {
                 }
             });
             if (res?.data?.success) {
+                dispatch(setSelectedLabel(null));
+                dispatch(setSelectedMetro(null));
+                dispatch(setSelectedNumber(null));
                 navigation.goBack();
                 Toast.success("তেল সরবরাহ সফলভাবে যোগ করা হয়েছে");
             }
@@ -127,74 +128,155 @@ export default function Addfuel({ navigation }) {
     }
 
     useEffect(() => {
-        if (selectedLabel && selectedMetro && number?.length >= 7) {
+        if (selectedLabel && selectedMetro && selectedNumber?.length >= 7) {
             checkFuel();
 
         } else {
             sethistory([]);
         }
-    }, [selectedLabel, selectedMetro, number])
+    }, [selectedLabel, selectedMetro, selectedNumber])
 
     return (
         <InnerLayer>
-            <View style={{ flex: 1 }} >
-                <Text style={styles.label} >নাম্বার প্লেটের শহর নির্বাচন করুন</Text>
-                <Spacing vertical={10} />
-                <FlatList
-                    style={{ maxHeight: 40 }}
-                    data={metros}
-                    keyExtractor={item => item}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={{
-                            padding: 10,
-                            backgroundColor: selectedMetro === item ? "#000" : "#fff",
-                            borderRadius: 5,
-                            marginRight: 10,
-                            borderColor: "#eee",
-                            borderWidth: 1,
-                        }}
-                            onPress={() => dispatch(setSelectedMetro(item))}
-                        >
-                            <Text style={{ color: selectedMetro === item ? "#fff" : "#000" }} >{item}</Text>
-                        </TouchableOpacity>
-                    )}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                />
-                <Spacing vertical={20} />
-                <Text style={styles.label} >যানবাহনের ক্যাটেগরি নির্বাচন করুন</Text>
-                <Spacing vertical={10} />
-                <FlatList
-                    data={vehicleCategoryLetters}
-                    style={{ maxHeight: 40 }}
 
-                    keyExtractor={item => item}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={{
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                borderBottomColor: "#000",
+                borderBottomWidth: 1,
+            }} >
+                <FullButton 
+                    title="ম্যানুয়ালি নাম্বার দিন"
+                    onPress={() => dispatch(setSelectedTab("menual"))}
+                    style={{
+                        backgroundColor: !selectedTab || selectedTab === "menual" ? "#000" : "#fff",
+                        flex: 1,
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                    }}
+                    titleStyle={{
+                        color: selectedTab === "menual" ? "#fff" : "#000",
+                    }}
+                />
+                <FullButton 
+                    title="QR স্ক্যান করুন"
+                    onPress={() => dispatch(setSelectedTab("qr"))}
+                    style={{
+                        backgroundColor: selectedTab === "qr" ? "#000" : "#fff",
+                        flex: 1,
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+
+                    }}
+                    titleStyle={{
+                        color: selectedTab === "qr" ? "#fff" : "#000",
+                    }}
+                />
+            </View>
+            <Spacing vertical={20} />
+            <ScrollView >
+                {selectedTab === "qr" ?
+                <>
+                {selectedLabel && selectedMetro && selectedNumber ? 
+                <>
+                    <Text style={{fontSize: 16, color: '#000', fontWeight:'600', textAlign:'center'}} >স্ক্যান করা যানবাহনের নাম্বার</Text>
+                    <Text style={{fontSize: 28, color: '#000', textAlign:'center', fontWeight:'900'}} >{getFormattedNumberPlate()}</Text>
+
+                    <Spacing vertical={5} />
+
+
+<View style={{
                             padding: 10,
-                            paddingHorizontal: 15,
-                            backgroundColor: selectedLabel === item ? "#000" : "#fff",
+                            backgroundColor: "lightyellow",
                             borderRadius: 5,
-                            marginRight: 10,
                             borderColor: "#eee",
                             borderWidth: 1,
-                        }}
-                            onPress={() => dispatch(setSelectedLabel(item))}
-                        >
-                            <Text style={{ color: selectedLabel === item ? "#fff" : "#000" }} >{item}</Text>
-                        </TouchableOpacity>
-                    )}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                />
-                <Spacing vertical={20} />
-                <Input
-                    label={"যানবাহনের নাম্বার প্লেটের ডিজিট"}
-                    keyboardType="numeric"
-                    onChangeText={handleChange}
-                    placeholder={"নাম্বার লিখুন (যেমন: ৮৯-২২৩৩)"}
-                    value={number}
-                />
+                            alignItems: "center",
+                            maxWidth: "70%",
+                            alignSelf: "center",
+                        }} >
+                    <Text style={{fontSize: 14, color: '#000', textAlign:'center', }} >দয়া করে স্ক্যান করে পাওয়া নাম্বারের যানবাহনের মূল নাম্বারটি মিলিয়ে নিন</Text>
+                    </View>
+
+                    <Spacing vertical={20} />
+
+                    <FullButton 
+                        title="নতুন করে QR কোড স্ক্যান করুন"
+                        onPress={() => navigation.navigate("QRScannerScreen")}
+                        style={{alignSelf:'center'}}
+                        />
+
+                </>
+                : 
+                <FullButton 
+                        title="QR কোড স্ক্যান করুন"
+                        onPress={() => navigation.navigate("QRScannerScreen")}
+                        />
+                }
+                    
+                </>
+                :
+                <>
+                    <Text style={styles.label} >নাম্বার প্লেটের শহর নির্বাচন করুন</Text>
+                    <Spacing vertical={10} />
+                    <FlatList
+                        style={{ maxHeight: 40 }}
+                        data={metros}
+                        keyExtractor={item => item}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity style={{
+                                padding: 10,
+                                backgroundColor: selectedMetro === item ? "#000" : "#fff",
+                                borderRadius: 5,
+                                marginRight: 10,
+                                borderColor: "#eee",
+                                borderWidth: 1,
+                            }}
+                                onPress={() => dispatch(setSelectedMetro(item))}
+                            >
+                                <Text style={{ color: selectedMetro === item ? "#fff" : "#000" }} >{item}</Text>
+                            </TouchableOpacity>
+                        )}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                    />
+                    <Spacing vertical={20} />
+                    <Text style={styles.label} >যানবাহনের ক্যাটেগরি নির্বাচন করুন</Text>
+                    <Spacing vertical={10} />
+                    <FlatList
+                        data={vehicleCategoryLetters}
+                        style={{ maxHeight: 40 }}
+
+                        keyExtractor={item => item}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity style={{
+                                padding: 10,
+                                paddingHorizontal: 15,
+                                backgroundColor: selectedLabel === item ? "#000" : "#fff",
+                                borderRadius: 5,
+                                marginRight: 10,
+                                borderColor: "#eee",
+                                borderWidth: 1,
+                            }}
+                                onPress={() => dispatch(setSelectedLabel(item))}
+                            >
+                                <Text style={{ color: selectedLabel === item ? "#fff" : "#000" }} >{item}</Text>
+                            </TouchableOpacity>
+                        )}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                    />
+                    <Spacing vertical={20} />
+                    <Input
+                        label={"যানবাহনের নাম্বার প্লেটের ডিজিট"}
+                        keyboardType="numeric"
+                        onChangeText={handleChange}
+                        placeholder={"নাম্বার লিখুন (যেমন: ৮৯-২২৩৩)"}
+                        value={selectedNumber}
+                    />
+                </>
+                }
                 {history.length > 0 &&
                     <>
                         <Spacing vertical={20} />
@@ -229,11 +311,11 @@ export default function Addfuel({ navigation }) {
                     <View style={{ alignItems: "center" }} >
                         <Image source={{ uri: selectedImage?.uri }} style={{ width: 150, height: 150, borderRadius: 10 }} />
                         <Spacing vertical={10} />
-                        <FullButton title="নাম্বার প্লেটের ছবি পরিবর্তন করুন" onPress={addImage} />
+                        <FullButton title="আবার তুলুন" onPress={addImage} />
                     </View>
                     :
                     <FullButton title="নাম্বার প্লেটের ছবি তুলুন (প্রমাণসাপেক্ষে)" onPress={addImage} />}
-            </View>
+            </ScrollView>
             <TouchableOpacity style={{
                 backgroundColor: "#222",
                 alignItems: "center",

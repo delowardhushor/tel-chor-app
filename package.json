@@ -22,6 +22,7 @@
     "react": "19.2.3",
     "react-i18next": "^16.6.6",
     "react-native": "0.84.1",
+    "react-native-camera-kit": "^17.0.1",
     "react-native-image-picker": "^8.2.1",
     "react-native-localize": "^3.7.0",
     "react-native-permissions": "^5.5.1",
