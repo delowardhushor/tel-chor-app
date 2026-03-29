@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import Spacing from "../components/Spacing";
 import { setSelectedLabel, setSelectedMetro } from "../store/appSlice";
 import Input from "../components/Input";
-import { captureImage, IMAGE_BASE_URL, toBanglaNumber } from './../utils/uti'
+import { captureImage, IMAGE_BASE_URL, metros, toBanglaNumber, vehicleCategoryLetters } from './../utils/uti'
 import axios from "axios";
 import { Toast } from "toastify-react-native";
 import moment from "moment";
@@ -26,105 +26,7 @@ export default function Addfuel({ navigation }) {
     const [number, setNumber] = React.useState("");
 
 
-    const metros = [
-        "ঢাকা মেট্রো",
-        "চট্টগ্রাম মেট্রো",
-        "খুলনা",
-        "রাজশাহী",
-        "সিলেট",
-        "বরিশাল",
-        "রংপুর",
-        "ময়মনসিংহ",
-
-        "কুমিল্লা",
-        "ফেনী",
-        "নোয়াখালী",
-        "লক্ষ্মীপুর",
-        "চাঁদপুর",
-        "ব্রাহ্মণবাড়িয়া",
-
-        "কক্সবাজার",
-        "বান্দরবান",
-        "খাগড়াছড়ি",
-        "রাঙামাটি",
-
-        "যশোর",
-        "সাতক্ষীরা",
-        "বাগেরহাট",
-        "নড়াইল",
-        "মাগুরা",
-        "ঝিনাইদহ",
-        "কুষ্টিয়া",
-        "চুয়াডাঙ্গা",
-        "মেহেরপুর",
-
-        "বগুড়া",
-        "পাবনা",
-        "সিরাজগঞ্জ",
-        "নাটোর",
-        "নওগাঁ",
-        "জয়পুরহাট",
-        "চাঁপাইনবাবগঞ্জ",
-
-        "দিনাজপুর",
-        "ঠাকুরগাঁও",
-        "পঞ্চগড়",
-        "নীলফামারী",
-        "লালমনিরহাট",
-        "কুড়িগ্রাম",
-        "গাইবান্ধা",
-
-        "জামালপুর",
-        "শেরপুর",
-        "নেত্রকোনা",
-
-        "গোপালগঞ্জ",
-        "মাদারীপুর",
-        "শরীয়তপুর",
-        "ফরিদপুর",
-        "রাজবাড়ী",
-
-        "গাজীপুর",
-        "নরসিংদী",
-        "কিশোরগঞ্জ",
-        "মানিকগঞ্জ",
-        "মুন্সীগঞ্জ",
-        "নারায়ণগঞ্জ",
-        "টাঙ্গাইল",
-
-        "ভোলা",
-        "পটুয়াখালী",
-        "পিরোজপুর",
-        "ঝালকাঠি",
-
-        "হবিগঞ্জ",
-        "মৌলভীবাজার",
-        "সুনামগঞ্জ"
-    ];
-
-    const vehicleCategoryLetters = [
-        "ক",
-        "খ",
-        "গ",
-        "ঘ",
-        "চ",
-        "ছ",
-        "জ",
-        "ঝ",
-        "ট",
-        "ঠ",
-        "ড",
-        "ন",
-        "প",
-        "ভ",
-        "ম",
-        "দ",
-        "থ",
-        "হ",
-        "ল",
-        "ই",
-        "য"
-    ];
+    
 
     const addImage = async () => {
         const capturedImage = await captureImage();
@@ -174,7 +76,7 @@ export default function Addfuel({ navigation }) {
             return;
         }
 
-        if (number.length < 6) {
+        if (number.length < 7) {
             Toast.error("দয়া করে নাম্বার প্লেটের ৬ ডিজিট লিখুন");
             return;
         }

@@ -17,6 +17,8 @@ import PumpSignUp from './src/screens/PumpSignUp';
 import AddFuel from './src/screens/Addfuel';
 import Settings from './src/screens/Settings';
 import ImagePreviewScreen from './src/screens/ImagePreviewScreen';
+import VehicleSignUp from './src/screens/VehicleSignUp';
+import QRScreen from './src/screens/QRScreen';
 import ToastManager, { Toast } from 'toastify-react-native'
 
 const Stack = createNativeStackNavigator();
@@ -33,18 +35,39 @@ const Navigation = () => {
         {!userType ?
           <>
             <Stack.Screen name="Onboarding" component={Onboarding} />
-            <Stack.Screen name="PumpSignUp" component={PumpSignUp} />
+            <Stack.Screen name="PumpSignUp" component={PumpSignUp}
+              options={{
+                title:"আপনার পাম্পের তথ্য দিন",
+                headerShown: true
+              }}
+              />
+            <Stack.Screen name="VehicleSignUp" component={VehicleSignUp} 
+              options={{
+                title:"আপনার যানবাহনের তথ্য দিন",
+                headerShown: true
+              }}
+            />
+
           </>
           :
           <>
+            {userType === "pump" ?
+            <>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="AddFuel" component={AddFuel}
-              
               options={{
               title:"জ্বালানি সরবরাহ শুরু করুন",
               headerShown: true
             }}
             />
+            </>
+            :
+            <>
+            <Stack.Screen name="QRScreen" component={QRScreen} />
+
+            </>
+            }
+            
             <Stack.Screen name="Settings" component={Settings} options={{
               title:"সেটিংস",
               headerShown: true

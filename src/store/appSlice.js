@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   pump: {},
+  vehicle: "",
   language: 'en', // default language
   userType: null,
   selectedMetro: null,
@@ -27,6 +28,10 @@ export const appSlice = createSlice({
     setSelectedLabel: (state, action) => {
       state.selectedLabel = action.payload;
     },
+    setVehicle: (state, action) => {
+      state.vehicle = action.payload;
+    }
+
   },
 })
 
@@ -36,7 +41,8 @@ export const {
   setLanguage,
   setUserType,
   setSelectedMetro,
-  setSelectedLabel
+  setSelectedLabel,
+  setVehicle
 } = appSlice.actions
 
 export default appSlice.reducer

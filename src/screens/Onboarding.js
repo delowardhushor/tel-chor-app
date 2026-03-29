@@ -12,7 +12,7 @@ export default function Onboarding({navigation}) {
     }
 
     const handleGeneralUserPress = () => {
-        navigation.navigate('GeneralUserLogin');
+        navigation.navigate('VehicleSignUp');
     }
 
 
