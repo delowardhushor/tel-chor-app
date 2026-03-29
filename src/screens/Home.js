@@ -1,14 +1,15 @@
-import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator, TouchableOpacity } from "react-native";
 import InnerLayer from "../components/InnerLayer";
 import { useSelector } from "react-redux";
 import FullButton from "../components/FullBtn";
 import React from "react";
 import Spacing from "../components/Spacing";
 import axios from "axios";
-import { IMAGE_BASE_URL } from "../utils/uti";
+import { IMAGE_BASE_URL, toBanglaNumber } from "../utils/uti";
 import moment from "moment";
 import "moment/locale/bn";
 import { useIsFocused } from "@react-navigation/native";
+import Ionicons from "@react-native-vector-icons/ionicons";
 moment.locale("bn");
 
 export default function Home({ navigation }) {
@@ -45,8 +46,21 @@ export default function Home({ navigation }) {
     return (
         <InnerLayer>
             <View style={styles.header}>
-                <Text style={styles.pumpName} >{pump.name}</Text>
+                <View>
+<Text style={styles.pumpName} >{pump.name}</Text>
                 <Text style={styles.pumpLocation} >{pump.location}</Text>
+                </View>
+                <TouchableOpacity style={{
+                    height: 40,
+                    width: 40,
+                    borderRadius: 10,
+                    backgroundColor: "#222",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }} >
+                    <Ionicons name="settings-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+                
             </View>
             <FlatList
                 data={vehicles}
@@ -66,10 +80,10 @@ export default function Home({ navigation }) {
                     }} >
                         <Image source={{ uri: IMAGE_BASE_URL + item.image }} style={{ width: 80, height: 80, borderRadius: 5 }} />
                         <View>
-                            <Text style={{ fontSize: 16, fontWeight: "bold" }} >{item.number}</Text>
+                            <Text style={{ fontSize: 16, fontWeight: "bold" }} >{(toBanglaNumber(item.number))}</Text>
                             <Spacing vertical={5} />
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }} >
-                                <Text style={{ fontSize: 14, color: "#555" }} >{item.quantity} লিটার</Text>
+                                <Text style={{ fontSize: 14, color: "#555" }} >{toBanglaNumber(item.quantity)} লিটার</Text>
                                 <View style={{ height: 5, width: 5, borderRadius: 5, backgroundColor: "#000" }} />
                                 <Text style={{ fontSize: 14, color: "#555" }} >{moment(item.createdAt).fromNow()}</Text>
                             </View>
@@ -112,6 +126,9 @@ const styles = StyleSheet.create({
         borderBottomColorL: "#eee",
         borderBottomWidth: 0.5,
         paddingBottom: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
     },
     pumpName: {
         fontSize: 24,

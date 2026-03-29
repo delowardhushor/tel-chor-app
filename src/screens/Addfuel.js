@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, FlatList, TouchableOpacity ,Image } from "react-native";
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import InnerLayer from "../components/InnerLayer";
 import { useDispatch, useSelector } from "react-redux";
 import FullButton from "../components/FullBtn";
@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import Spacing from "../components/Spacing";
 import { setSelectedLabel, setSelectedMetro } from "../store/appSlice";
 import Input from "../components/Input";
-import {captureImage} from './../utils/uti'
+import { captureImage, toBanglaNumber } from './../utils/uti'
 import axios from "axios";
 import { Toast } from "toastify-react-native";
 import moment from "moment";
@@ -129,24 +129,39 @@ export default function Addfuel({ navigation }) {
     const addImage = async () => {
         const capturedImage = await captureImage();
         console.log("Selected image URI: ", capturedImage);
-        if(capturedImage){
+        if (capturedImage) {
             setSelectedImage(capturedImage);
         }
     };
 
+    const handleChange = (text) => {
+        // Remove all non-digits
+        let digits = text.replace(/\D/g, '');
+
+        // Limit to 6 digits
+        digits = digits.slice(0, 6);
+
+        // Add dash after 2 digits
+        if (digits.length > 2) {
+            digits = digits.slice(0, 2) + '-' + digits.slice(2);
+        }
+
+        setNumber(digits);
+    };
+
     const submit = async () => {
-        if(!selectedMetro || !selectedLabel){
+        if (!selectedMetro || !selectedLabel) {
             // Show error message
             Toast.error("দয়া করে নাম্বার প্লেটের শহর এবং ক্যাটেগরি নির্বাচন করুন");
             return;
         }
 
-        if(!selectedImage){
+        if (!selectedImage) {
             Toast.error("দয়া করে নাম্বার প্লেটের ছবি তুলুন");
             return;
         }
 
-        if(!quantity){
+        if (!quantity) {
             Toast.error("দয়া করে তেলের পরিমাণ লিখুন");
             return;
         }
@@ -157,11 +172,13 @@ export default function Addfuel({ navigation }) {
 
         formData.append("image", {
             uri: selectedImage.uri,
-            type: 'image/'+selectedImage.fileName.split('.').pop(),
+            type: 'image/' + selectedImage.fileName.split('.').pop(),
             name: selectedImage.fileName
         })
 
-        const formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + number;
+        let formatattedNUmberPlate = selectedMetro + "-" + selectedLabel + "-" + number;
+
+        formatattedNUmberPlate = toBanglaNumber(formatattedNUmberPlate.replace(/\s+/g, '-'));
 
         formData.append("quantity", quantity);
         formData.append("number", formatattedNUmberPlate);
@@ -187,7 +204,8 @@ export default function Addfuel({ navigation }) {
     const checkFuel = async () => {
 
         // todo:: fetch fuel supply history based on selected metro, label and number
-        try {            const res = await axios.get(`https://telchorapi.bitbytetec.com/vehicles/pump/${pump._id}`);
+        try {
+            const res = await axios.get(`https://telchorapi.bitbytetec.com/vehicles/pump/${pump._id}`);
             if (res?.data?.success) {
                 sethistory(res.data.data);
             }
@@ -206,11 +224,11 @@ export default function Addfuel({ navigation }) {
                 <Text style={styles.pumpName} >জ্বালানি সরবরাহ শুরু করুন</Text>
             </View>
             <Spacing vertical={20} />
-            <View style={{flex: 1}} >
+            <View style={{ flex: 1 }} >
                 <Text style={styles.label} >নাম্বার প্লেটের শহর নির্বাচন করুন</Text>
                 <Spacing vertical={10} />
                 <FlatList
-                    style={{maxHeight: 40}}
+                    style={{ maxHeight: 40 }}
                     data={metros}
                     keyExtractor={item => item}
                     renderItem={({ item }) => (
@@ -221,8 +239,8 @@ export default function Addfuel({ navigation }) {
                             marginRight: 10,
                             borderColor: "#eee",
                             borderWidth: 1,
-                        }} 
-                        onPress={() => dispatch(setSelectedMetro(item))}
+                        }}
+                            onPress={() => dispatch(setSelectedMetro(item))}
                         >
                             <Text style={{ color: selectedMetro === item ? "#fff" : "#000" }} >{item}</Text>
                         </TouchableOpacity>
@@ -235,7 +253,7 @@ export default function Addfuel({ navigation }) {
                 <Spacing vertical={10} />
                 <FlatList
                     data={vehicleCategoryLetters}
-                    style={{maxHeight: 40}}
+                    style={{ maxHeight: 40 }}
 
                     keyExtractor={item => item}
                     renderItem={({ item }) => (
@@ -247,8 +265,8 @@ export default function Addfuel({ navigation }) {
                             marginRight: 10,
                             borderColor: "#eee",
                             borderWidth: 1,
-                        }} 
-                        onPress={() => dispatch(setSelectedLabel(item))}
+                        }}
+                            onPress={() => dispatch(setSelectedLabel(item))}
                         >
                             <Text style={{ color: selectedLabel === item ? "#fff" : "#000" }} >{item}</Text>
                         </TouchableOpacity>
@@ -257,7 +275,13 @@ export default function Addfuel({ navigation }) {
                     showsHorizontalScrollIndicator={false}
                 />
                 <Spacing vertical={20} />
-                <Input label={"যানবাহনের নাম্বার প্লেটের ডিজিট"} keyboardType="numeric" onChangeText={setNumber} />
+                <Input
+                    label={"যানবাহনের নাম্বার প্লেটের ডিজিট"}
+                    keyboardType="numeric"
+                    onChangeText={handleChange}
+                    placeholder={"নাম্বার লিখুন (যেমন: ৮৯-২২৩৩)"}
+                    value={number}
+                />
                 {history.length > 0 &&
                     <>
                         <Spacing vertical={20} />
@@ -268,22 +292,22 @@ export default function Addfuel({ navigation }) {
                             borderColor: "#eee",
                             borderWidth: 1,
                         }} >
-                        <Text style={{ fontSize: 12, fontWeight: "bold" }} >{history[0].number} নাম্বার প্লেটের যানবাহনটি {moment(history[0].createdAt).fromNow()} {history[0].filledFrom?.name}, {history[0].filledFrom?.location} থেকে {history[0].quantity} লিটার জ্বালানি ক্রয় করেছে </Text>
+                            <Text style={{ fontSize: 12, fontWeight: "bold" }} >{history[0].number} নাম্বার প্লেটের যানবাহনটি {moment(history[0].createdAt).fromNow()} {history[0].filledFrom?.name}, {history[0].filledFrom?.location} থেকে {history[0].quantity} লিটার জ্বালানি ক্রয় করেছে </Text>
                         </View>
-                        </>
-                        }
+                    </>
+                }
                 <Spacing vertical={20} />
                 <Input label={"তেলের পরিমাণ (লিটারে) লিখুন"} keyboardType="numeric" onChangeText={setquantity} />
-                
+
                 <Spacing vertical={20} />
-                {selectedImage?.uri ? 
-                <View style={{alignItems:"center"}} >
-                    <Image source={{uri: selectedImage?.uri}} style={{width: 150, height: 150, borderRadius: 10}} />
-                    <Spacing vertical={10} />
-                    <FullButton title="নাম্বার প্লেটের ছবি পরিবর্তন করুন" onPress={addImage} />
-                </View>
-            :
-                <FullButton title="নাম্বার প্লেটের ছবি তুলুন (প্রমাণসাপেক্ষে)" onPress={addImage} />}
+                {selectedImage?.uri ?
+                    <View style={{ alignItems: "center" }} >
+                        <Image source={{ uri: selectedImage?.uri }} style={{ width: 150, height: 150, borderRadius: 10 }} />
+                        <Spacing vertical={10} />
+                        <FullButton title="নাম্বার প্লেটের ছবি পরিবর্তন করুন" onPress={addImage} />
+                    </View>
+                    :
+                    <FullButton title="নাম্বার প্লেটের ছবি তুলুন (প্রমাণসাপেক্ষে)" onPress={addImage} />}
             </View>
             <TouchableOpacity style={{
                 backgroundColor: "#222",

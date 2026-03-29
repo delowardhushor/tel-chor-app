@@ -57,3 +57,17 @@ export async function captureImage() {
     return null;
   }
 }
+
+export const toBanglaNumber = (input) => {
+  const eng = '0123456789';
+  const ban = '০১২৩৪৫৬৭৮৯';
+
+  return input
+    .toString()
+
+    // Step 1: convert Bangla → English (normalize)
+    .replace(/[০-৯]/g, d => eng['০১২৩৪৫৬৭৮৯'.indexOf(d)])
+
+    // Step 2: convert English → Bangla (final output)
+    .replace(/[0-9]/g, d => ban[eng.indexOf(d)]);
+};
